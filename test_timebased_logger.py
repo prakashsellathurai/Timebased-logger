@@ -62,3 +62,15 @@ def test_custom_time_fn():
     fake_time[0] += 0.6
     logger.log("third")  # Should log
     assert logs == ["first", "third"] 
+
+def test_performance():
+    import time as systime
+    logs = []
+    logger = TimeBasedLogger(interval_seconds=0, log_fn=logs.append)
+    N = 100000
+    start = systime.time()
+    for i in range(N):
+        logger.log(f"msg {i}")
+    end = systime.time()
+    duration = end - start
+    print(f"Performance: {N} logs in {duration:.4f} seconds ({N/duration:.2f} logs/sec)") 
