@@ -15,7 +15,8 @@ def test_logs_only_once_per_interval(monkeypatch):
     assert logs == ["first"]
     
     # Simulate time passing
-    monkeypatch.setattr(time, "time", lambda: time.time() + 1.1)
+    original_time = time.time
+    monkeypatch.setattr(time, "time", lambda: original_time() + 1.1)
     logger.log("third")
     assert logs == ["first", "third"]
 
