@@ -21,6 +21,8 @@ Or, just copy `timebased_logger.py` into your project.
 - Limit the number of logs per interval (`max_logs_per_interval`)
 - Pause and resume logging
 - Custom time function for advanced testing
+- **High performance async mode**: background logging with batching
+- **Thread safety**: optional locking for multi-threaded use
 
 ## Usage
 
@@ -55,6 +57,17 @@ logger = TimeBasedLogger(interval_seconds=1, log_fn=print, time_fn=time_fn)
 logger.log("first")
 fake_time[0] += 1.1
 logger.log("second")  # Will log because fake time advanced
+
+# High performance async mode with batching
+logger = TimeBasedLogger(interval_seconds=0, log_fn=print, async_mode=True, batch_size=10)
+for i in range(100):
+    logger.log(f"async {i}")
+logger.flush()  # Ensure all logs are processed
+logger.close()  # Cleanly stop the background thread
+
+# Thread-safe mode for multi-threaded logging
+logger = TimeBasedLogger(interval_seconds=0, log_fn=print, thread_safe=True)
+# Use logger from multiple threads safely
 ```
 
 ## API Documentation
@@ -67,18 +80,26 @@ TimeBasedLogger(
     interval_seconds=1,
     log_fn=print,
     max_logs_per_interval=None,
-    time_fn=None
+    time_fn=None,
+    async_mode=False,
+    batch_size=10,
+    thread_safe=False
 )
 ```
 - `interval_seconds` (float): Minimum time in seconds between logs.
 - `log_fn` (callable): Function to handle log output (default: `print`).
 - `max_logs_per_interval` (int, optional): Maximum number of logs allowed per interval. If `None`, unlimited.
 - `time_fn` (callable, optional): Custom function to get the current time (default: `time.time`). Useful for testing.
+- `async_mode` (bool): If `True`, logs are queued and processed in a background thread.
+- `batch_size` (int): Number of logs to batch before flushing in async mode.
+- `thread_safe` (bool): If `True`, uses a lock for thread safety (default: `False` for max speed).
 
 #### Methods
 - `log(message)`: Log a message if allowed by the interval and max logs per interval.
 - `pause()`: Pause logging. All `log()` calls will be ignored until resumed.
 - `resume()`: Resume logging. Allows immediate logging after resuming.
+- `flush()`: (async mode) Wait for the log queue to empty.
+- `close()`: (async mode) Cleanly stop the background logging thread.
 
 ## Testing
 
@@ -88,6 +109,8 @@ Tests are provided in `test_timebased_logger.py` and cover:
 - Limiting logs per interval
 - Pause and resume
 - Custom time function for deterministic tests
+- **Async mode and batching**
+- **Thread safety**
 
 Run tests with:
 ```sh

@@ -74,3 +74,32 @@ def test_performance():
     end = systime.time()
     duration = end - start
     print(f"Performance: {N} logs in {duration:.4f} seconds ({N/duration:.2f} logs/sec)") 
+
+def test_async_mode_and_batch(monkeypatch):
+    import time as systime
+    logs = []
+    logger = TimeBasedLogger(interval_seconds=0, log_fn=logs.append, async_mode=True, batch_size=5)
+    N = 20
+    for i in range(N):
+        logger.log(f"async {i}")
+    logger.flush()
+    logger.close()
+    assert len(logs) == N
+    assert logs[:5] == [f"async {i}" for i in range(5)]
+
+
+def test_thread_safe():
+    import threading
+    logs = []
+    logger = TimeBasedLogger(interval_seconds=0, log_fn=logs.append, thread_safe=True)
+    N = 1000
+    def worker(start):
+        for i in range(start, start + N):
+            logger.log(f"ts {i}")
+    t1 = threading.Thread(target=worker, args=(0,))
+    t2 = threading.Thread(target=worker, args=(N,))
+    t1.start()
+    t2.start()
+    t1.join()
+    t2.join()
+    assert len(logs) == 2 * N 
