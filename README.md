@@ -1,6 +1,6 @@
 # TimeBasedLogger
 
-A Python logger that only logs messages at a specified time interval. Now with advanced features!
+A Python logger that only logs messages at a specified time interval.
 
 [![PyPI version](https://badge.fury.io/py/timebased-logger.svg)](https://pypi.org/project/timebased-logger/)
 
@@ -119,7 +119,7 @@ pytest
 
 ## Documentation
 
-Full documentation is available in the [GitHub repository](https://github.com/yourusername/timebased-logger#readme).
+Full documentation is available in the [GitHub repository](https://github.com/prakashsellathurai/timebased-logger#readme).
 
 - **API Reference:** See above for all class methods and parameters.
 - **Examples:** See the Usage section and `demo.py` for more examples.
