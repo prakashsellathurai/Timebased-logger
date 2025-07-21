@@ -7,19 +7,37 @@ import threading
 from typing import Optional, Callable
 
 class TimeBasedLogger:
-    def __init__(self, interval_seconds: float, log_fn: Optional[Callable[[str], None]] = None):
-        """
-        interval_seconds: Minimum time in seconds between logs.
-        log_fn: Optional function to handle log output (default: print).
-        """
+    def __init__(self, interval_seconds=1, log_fn=print, max_logs_per_interval=None, time_fn=None):
         self.interval_seconds = interval_seconds
-        self.log_fn = log_fn or print
-        self._last_log_time = 0.0
-        self._lock = threading.Lock()
+        self.log_fn = log_fn
+        self.max_logs_per_interval = max_logs_per_interval
+        self.time_fn = time_fn or time.time
+        self._last_log_time = None
+        self._logs_this_interval = 0
+        self._interval_start = None
+        self._paused = False
 
-    def log(self, message: str):
-        now = time.time()
-        with self._lock:
-            if now - self._last_log_time >= self.interval_seconds:
-                self.log_fn(message)
-                self._last_log_time = now 
+    def log(self, message):
+        if self._paused:
+            return
+        now = self.time_fn()
+        if self._interval_start is None or now - self._interval_start >= self.interval_seconds:
+            self._interval_start = now
+            self._logs_this_interval = 0
+            self._last_log_time = None  # Allow immediate logging after interval reset
+        if self.max_logs_per_interval is not None and self._logs_this_interval >= self.max_logs_per_interval:
+            return
+        if self._last_log_time is None or now - self._last_log_time >= self.interval_seconds:
+            self.log_fn(message)
+            self._last_log_time = now
+            self._logs_this_interval += 1
+        elif self.max_logs_per_interval is not None:
+            self.log_fn(message)
+            self._logs_this_interval += 1
+
+    def pause(self):
+        self._paused = True
+
+    def resume(self):
+        self._paused = False
+        self._last_log_time = None  # Allow immediate logging after resume 
