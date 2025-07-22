@@ -1,0 +1,49 @@
+name: Auto Release on Version Update
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'setup.py'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Get version from setup.py
+        id: get_version
+        run: |
+          VERSION=$(python setup.py --version)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Check if tag exists
+        id: check_tag
+        run: |
+          git fetch --tags
+          if git rev-parse "v$VERSION" >/dev/null 2>&1; then
+            echo "Tag exists"
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "Tag does not exist"
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create tag and release
+        if: steps.check_tag.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ env.VERSION }}
+          name: Release v${{ env.VERSION }}
+          body: |
+            Automated release for version ${{ env.VERSION }}.
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} 
