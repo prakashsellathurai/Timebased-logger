@@ -1,0 +1,438 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+<meta name="generator" content="pdoc3 0.11.6">
+<title>timebased_logger API documentation</title>
+<meta name="description" content="timebased_logger.py
+A production-grade logger that logs messages based on time intervals, log levels, formatting, and supports async/thread-safe modes …">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/sanitize.min.css" integrity="sha512-y1dtMcuvtTMJc1yPgEqF0ZjQbhnc/bFhyvIyVNb9Zk5mIGtqVaAB1Ttl28su8AvFMOY0EwRbAe+HCLqj6W7/KA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/13.0.0/typography.min.css" integrity="sha512-Y1DYSb995BAfxobCkKepB1BqJJTPrOp3zPL74AWFugHHmmdcvO+C48WLrUOlhGMc0QG7AE3f7gmvvcrmX2fDoA==" crossorigin>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css" crossorigin>
+<style>:root{--highlight-color:#fe9}.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:1.5em;overflow:hidden}#sidebar > *:last-child{margin-bottom:2cm}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:2em 0 .50em 0}h3{font-size:1.4em;margin:1.6em 0 .7em 0}h4{margin:0;font-size:105%}h1:target,h2:target,h3:target,h4:target,h5:target,h6:target{background:var(--highlight-color);padding:.2em 0}a{color:#058;text-decoration:none;transition:color .2s ease-in-out}a:visited{color:#503}a:hover{color:#b62}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900;font-weight:bold}pre code{font-size:.8em;line-height:1.4em;padding:1em;display:block}code{background:#f3f3f3;font-family:"DejaVu Sans Mono",monospace;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{margin-top:.6em;font-weight:bold}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}dt:target .name{background:var(--highlight-color)}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source > summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible;min-width:max-content}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}td{padding:0 .5em}.admonition{padding:.1em 1em;margin:1em 0}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%;height:100vh;overflow:auto;position:sticky;top:0}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul ul{padding-left:1em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+<script defer src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js" integrity="sha512-D9gUyxqja7hBtkWpPWGt9wfbfaMGVt9gnyCvYa+jojwwPHLCzUm5i8rpk7vD7wNee9bA35eYIjobYPaQuKS1MQ==" crossorigin></script>
+<script>window.addEventListener('DOMContentLoaded', () => {
+hljs.configure({languages: ['bash', 'css', 'diff', 'graphql', 'ini', 'javascript', 'json', 'plaintext', 'python', 'python-repl', 'rust', 'shell', 'sql', 'typescript', 'xml', 'yaml']});
+hljs.highlightAll();
+/* Collapse source docstrings */
+setTimeout(() => {
+[...document.querySelectorAll('.hljs.language-python > .hljs-string')]
+.filter(el => el.innerHTML.length > 200 && ['"""', "'''"].includes(el.innerHTML.substring(0, 3)))
+.forEach(el => {
+let d = document.createElement('details');
+d.classList.add('hljs-string');
+d.innerHTML = '<summary>"""</summary>' + el.innerHTML.substring(3);
+el.replaceWith(d);
+});
+}, 100);
+})</script>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>timebased_logger</code></h1>
+</header>
+<section id="section-intro">
+<p>timebased_logger.py
+A production-grade logger that logs messages based on time intervals, log levels, formatting, and supports async/thread-safe modes and flexible IO.</p>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="timebased_logger.TimeBasedLogger"><code class="flex name class">
+<span>class <span class="ident">TimeBasedLogger</span></span>
+<span>(</span><span>interval_seconds=1,<br>log_fn=&lt;built-in function print&gt;,<br>max_logs_per_interval=None,<br>time_fn=None,<br>async_mode=False,<br>batch_size=10,<br>thread_safe=False,<br>level='INFO',<br>fmt='[{level}] {asctime} {message}')</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class TimeBasedLogger:
+    &#34;&#34;&#34;
+    TimeBasedLogger(interval_seconds=1, log_fn=print, max_logs_per_interval=None, time_fn=None, async_mode=False, batch_size=10, thread_safe=False, level=&#39;INFO&#39;, fmt=&#39;[{level}] {asctime} {message}&#39;)
+
+    A logger that emits messages at a specified interval, with support for log levels, formatting, exception logging, async and thread-safe operation, and flexible output (IO).
+
+    Args:
+        interval_seconds (float): Minimum time in seconds between logs.
+        log_fn (callable): Function to handle log output (default: print).
+        max_logs_per_interval (int, optional): Maximum number of logs allowed per interval. If None, unlimited.
+        time_fn (callable, optional): Custom function to get the current time (default: time.time).
+        async_mode (bool): If True, logs are queued and processed in a background thread.
+        batch_size (int): Number of logs to batch before flushing in async mode.
+        thread_safe (bool): If True, uses a lock for thread safety (default: False for max speed).
+        level (str|int): Minimum log level to emit (default: &#39;INFO&#39;).
+        fmt (str): Log message format (default: &#39;[{level}] {asctime} {message}&#39;).
+
+    Usage:
+        logger = TimeBasedLogger(level=&#39;INFO&#39;, fmt=&#39;[{level}] {message}&#39;)
+        logger.info(&#39;Hello world&#39;)
+    &#34;&#34;&#34;
+    def __init__(self, interval_seconds=1, log_fn=print, max_logs_per_interval=None, time_fn=None, async_mode=False, batch_size=10, thread_safe=False, level=&#39;INFO&#39;, fmt=&#39;[{level}] {asctime} {message}&#39;):
+        self.interval_seconds = interval_seconds
+        self.log_fn = log_fn
+        self.max_logs_per_interval = max_logs_per_interval
+        self.time_fn = time_fn or time.time
+        self._last_log_time = None
+        self._logs_this_interval = 0
+        self._interval_start = None
+        self._paused = False
+        self.async_mode = async_mode
+        self.batch_size = batch_size
+        self.thread_safe = thread_safe
+        self._lock = threading.Lock() if thread_safe else None
+        self.level = self._level_to_int(level)
+        self.fmt = fmt
+        if async_mode:
+            self._queue = queue.Queue()
+            self._stop_event = threading.Event()
+            self._worker = threading.Thread(target=self._worker_fn, daemon=True)
+            self._worker.start()
+
+    def _level_to_int(self, level: Any) -&gt; int:
+        if isinstance(level, int):
+            return level
+        return LOG_LEVELS.get(str(level).upper(), 20)
+
+    def setLevel(self, level):
+        self.level = self._level_to_int(level)
+
+    def log(self, message, level=&#39;INFO&#39;, exc_info=None, extra=None):
+        lvl = self._level_to_int(level)
+        if lvl &lt; self.level:
+            return
+        record = self._format_record(message, level, exc_info, extra)
+        if self._paused:
+            return
+        if self.async_mode:
+            self._queue.put(record)
+            return
+        self._log_internal(record)
+
+    def _log_internal(self, record):
+        now = self.time_fn()
+        if self.thread_safe:
+            lock = self._lock
+            lock.acquire()
+        try:
+            if self._interval_start is None or now - self._interval_start &gt;= self.interval_seconds:
+                self._interval_start = now
+                self._logs_this_interval = 0
+                self._last_log_time = None
+            if self.max_logs_per_interval is not None and self._logs_this_interval &gt;= self.max_logs_per_interval:
+                return
+            if self._last_log_time is None or now - self._last_log_time &gt;= self.interval_seconds:
+                self.log_fn(record)
+                self._last_log_time = now
+                self._logs_this_interval += 1
+            elif self.max_logs_per_interval is not None:
+                self.log_fn(record)
+                self._logs_this_interval += 1
+        finally:
+            if self.thread_safe:
+                lock.release()
+
+    def _worker_fn(self):
+        batch = []
+        while not self._stop_event.is_set() or not self._queue.empty():
+            try:
+                msg = self._queue.get(timeout=0.1)
+                batch.append(msg)
+                if len(batch) &gt;= self.batch_size:
+                    self._flush_batch(batch)
+                    batch.clear()
+            except queue.Empty:
+                if batch:
+                    self._flush_batch(batch)
+                    batch.clear()
+        # Final flush
+        if batch:
+            self._flush_batch(batch)
+
+    def _flush_batch(self, batch):
+        for msg in batch:
+            try:
+                self._log_internal(msg)
+            except Exception:
+                # Optionally log the error somewhere, or just ignore for robustness
+                pass
+
+    def _format_record(self, message, level, exc_info, extra):
+        asctime = time.strftime(&#39;%Y-%m-%d %H:%M:%S&#39;, time.localtime(self.time_fn()))
+        base = {
+            &#39;level&#39;: str(level).upper(),
+            &#39;asctime&#39;: asctime,
+            &#39;message&#39;: message,
+        }
+        if extra:
+            base.update(extra)
+        formatted = self.fmt.format(**base)
+        if exc_info:
+            import traceback
+            if not isinstance(exc_info, tuple):
+                exc_info = sys.exc_info()
+            formatted += &#39;\n&#39; + &#39;&#39;.join(traceback.format_exception(*exc_info))
+        return formatted
+
+    def debug(self, message, **kwargs):
+        self.log(message, level=&#39;DEBUG&#39;, **kwargs)
+    def info(self, message, **kwargs):
+        self.log(message, level=&#39;INFO&#39;, **kwargs)
+    def warning(self, message, **kwargs):
+        self.log(message, level=&#39;WARNING&#39;, **kwargs)
+    def error(self, message, exc_info=None, **kwargs):
+        self.log(message, level=&#39;ERROR&#39;, exc_info=exc_info, **kwargs)
+    def critical(self, message, exc_info=None, **kwargs):
+        self.log(message, level=&#39;CRITICAL&#39;, exc_info=exc_info, **kwargs)
+
+    def flush(self):
+        if self.async_mode:
+            while not self._queue.empty():
+                time.sleep(0.01)
+
+    def close(self):
+        if self.async_mode:
+            self._stop_event.set()
+            self._worker.join()
+
+    def pause(self):
+        self._paused = True
+
+    def resume(self):
+        self._paused = False
+        self._last_log_time = None  # Allow immediate logging after resume </code></pre>
+</details>
+<div class="desc"><p>TimeBasedLogger(interval_seconds=1, log_fn=print, max_logs_per_interval=None, time_fn=None, async_mode=False, batch_size=10, thread_safe=False, level='INFO', fmt='[{level}] {asctime} {message}')</p>
+<p>A logger that emits messages at a specified interval, with support for log levels, formatting, exception logging, async and thread-safe operation, and flexible output (IO).</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>interval_seconds</code></strong> :&ensp;<code>float</code></dt>
+<dd>Minimum time in seconds between logs.</dd>
+<dt><strong><code>log_fn</code></strong> :&ensp;<code>callable</code></dt>
+<dd>Function to handle log output (default: print).</dd>
+<dt><strong><code>max_logs_per_interval</code></strong> :&ensp;<code>int</code>, optional</dt>
+<dd>Maximum number of logs allowed per interval. If None, unlimited.</dd>
+<dt><strong><code>time_fn</code></strong> :&ensp;<code>callable</code>, optional</dt>
+<dd>Custom function to get the current time (default: time.time).</dd>
+<dt><strong><code>async_mode</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, logs are queued and processed in a background thread.</dd>
+<dt><strong><code>batch_size</code></strong> :&ensp;<code>int</code></dt>
+<dd>Number of logs to batch before flushing in async mode.</dd>
+<dt><strong><code>thread_safe</code></strong> :&ensp;<code>bool</code></dt>
+<dd>If True, uses a lock for thread safety (default: False for max speed).</dd>
+<dt><strong><code>level</code></strong> :&ensp;<code>str|int</code></dt>
+<dd>Minimum log level to emit (default: 'INFO').</dd>
+<dt><strong><code>fmt</code></strong> :&ensp;<code>str</code></dt>
+<dd>Log message format (default: '[{level}] {asctime} {message}').</dd>
+</dl>
+<h2 id="usage">Usage</h2>
+<p>logger = TimeBasedLogger(level='INFO', fmt='[{level}] {message}')
+logger.info('Hello world')</p></div>
+<h3>Methods</h3>
+<dl>
+<dt id="timebased_logger.TimeBasedLogger.close"><code class="name flex">
+<span>def <span class="ident">close</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def close(self):
+    if self.async_mode:
+        self._stop_event.set()
+        self._worker.join()</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="timebased_logger.TimeBasedLogger.critical"><code class="name flex">
+<span>def <span class="ident">critical</span></span>(<span>self, message, exc_info=None, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def critical(self, message, exc_info=None, **kwargs):
+    self.log(message, level=&#39;CRITICAL&#39;, exc_info=exc_info, **kwargs)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="timebased_logger.TimeBasedLogger.debug"><code class="name flex">
+<span>def <span class="ident">debug</span></span>(<span>self, message, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def debug(self, message, **kwargs):
+    self.log(message, level=&#39;DEBUG&#39;, **kwargs)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="timebased_logger.TimeBasedLogger.error"><code class="name flex">
+<span>def <span class="ident">error</span></span>(<span>self, message, exc_info=None, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def error(self, message, exc_info=None, **kwargs):
+    self.log(message, level=&#39;ERROR&#39;, exc_info=exc_info, **kwargs)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="timebased_logger.TimeBasedLogger.flush"><code class="name flex">
+<span>def <span class="ident">flush</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def flush(self):
+    if self.async_mode:
+        while not self._queue.empty():
+            time.sleep(0.01)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="timebased_logger.TimeBasedLogger.info"><code class="name flex">
+<span>def <span class="ident">info</span></span>(<span>self, message, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def info(self, message, **kwargs):
+    self.log(message, level=&#39;INFO&#39;, **kwargs)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="timebased_logger.TimeBasedLogger.log"><code class="name flex">
+<span>def <span class="ident">log</span></span>(<span>self, message, level='INFO', exc_info=None, extra=None)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def log(self, message, level=&#39;INFO&#39;, exc_info=None, extra=None):
+    lvl = self._level_to_int(level)
+    if lvl &lt; self.level:
+        return
+    record = self._format_record(message, level, exc_info, extra)
+    if self._paused:
+        return
+    if self.async_mode:
+        self._queue.put(record)
+        return
+    self._log_internal(record)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="timebased_logger.TimeBasedLogger.pause"><code class="name flex">
+<span>def <span class="ident">pause</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def pause(self):
+    self._paused = True</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="timebased_logger.TimeBasedLogger.resume"><code class="name flex">
+<span>def <span class="ident">resume</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def resume(self):
+    self._paused = False
+    self._last_log_time = None  # Allow immediate logging after resume </code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="timebased_logger.TimeBasedLogger.setLevel"><code class="name flex">
+<span>def <span class="ident">setLevel</span></span>(<span>self, level)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def setLevel(self, level):
+    self.level = self._level_to_int(level)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+<dt id="timebased_logger.TimeBasedLogger.warning"><code class="name flex">
+<span>def <span class="ident">warning</span></span>(<span>self, message, **kwargs)</span>
+</code></dt>
+<dd>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def warning(self, message, **kwargs):
+    self.log(message, level=&#39;WARNING&#39;, **kwargs)</code></pre>
+</details>
+<div class="desc"></div>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="timebased_logger.TimeBasedLogger" href="#timebased_logger.TimeBasedLogger">TimeBasedLogger</a></code></h4>
+<ul class="two-column">
+<li><code><a title="timebased_logger.TimeBasedLogger.close" href="#timebased_logger.TimeBasedLogger.close">close</a></code></li>
+<li><code><a title="timebased_logger.TimeBasedLogger.critical" href="#timebased_logger.TimeBasedLogger.critical">critical</a></code></li>
+<li><code><a title="timebased_logger.TimeBasedLogger.debug" href="#timebased_logger.TimeBasedLogger.debug">debug</a></code></li>
+<li><code><a title="timebased_logger.TimeBasedLogger.error" href="#timebased_logger.TimeBasedLogger.error">error</a></code></li>
+<li><code><a title="timebased_logger.TimeBasedLogger.flush" href="#timebased_logger.TimeBasedLogger.flush">flush</a></code></li>
+<li><code><a title="timebased_logger.TimeBasedLogger.info" href="#timebased_logger.TimeBasedLogger.info">info</a></code></li>
+<li><code><a title="timebased_logger.TimeBasedLogger.log" href="#timebased_logger.TimeBasedLogger.log">log</a></code></li>
+<li><code><a title="timebased_logger.TimeBasedLogger.pause" href="#timebased_logger.TimeBasedLogger.pause">pause</a></code></li>
+<li><code><a title="timebased_logger.TimeBasedLogger.resume" href="#timebased_logger.TimeBasedLogger.resume">resume</a></code></li>
+<li><code><a title="timebased_logger.TimeBasedLogger.setLevel" href="#timebased_logger.TimeBasedLogger.setLevel">setLevel</a></code></li>
+<li><code><a title="timebased_logger.TimeBasedLogger.warning" href="#timebased_logger.TimeBasedLogger.warning">warning</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc" title="pdoc: Python API documentation generator"><cite>pdoc</cite> 0.11.6</a>.</p>
+</footer>
+</body>
+</html>
