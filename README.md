@@ -1,8 +1,12 @@
 # TimeBasedLogger
 
-A Python logger that only logs messages at a specified time interval.
-
 [![PyPI version](https://badge.fury.io/py/timebased-logger.svg)](https://pypi.org/project/timebased-logger/)
+[![Build Status](https://github.com/prakashsellathurai/Timebased-logger/actions/workflows/python-package.yml/badge.svg)](https://github.com/prakashsellathurai/Timebased-logger/actions/workflows/python-package.yml)
+[![PyPI downloads](https://img.shields.io/pypi/dm/timebased-logger.svg)](https://pypi.org/project/timebased-logger/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python Versions](https://img.shields.io/pypi/pyversions/timebased-logger.svg)](https://pypi.org/project/timebased-logger/)
+
+A Python logger that only logs messages at a specified time interval.
 
 ## Project Links
 - [PyPI](https://pypi.org/project/timebased-logger/)
