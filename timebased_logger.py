@@ -1,6 +1,6 @@
 """
 timebased_logger.py
-A simple logger that logs messages based on time intervals, not message count.
+A production-grade logger that logs messages based on time intervals, log levels, formatting, and supports async/thread-safe modes and flexible IO.
 """
 import time
 import threading
@@ -18,19 +18,24 @@ LOG_LEVELS = {
 
 class TimeBasedLogger:
     """
-    A logger that logs messages at a specified interval, with optional batching and async background logging for high performance.
-    Now supports log levels and formatting.
+    TimeBasedLogger(interval_seconds=1, log_fn=print, max_logs_per_interval=None, time_fn=None, async_mode=False, batch_size=10, thread_safe=False, level='INFO', fmt='[{level}] {asctime} {message}')
+
+    A logger that emits messages at a specified interval, with support for log levels, formatting, exception logging, async and thread-safe operation, and flexible output (IO).
 
     Args:
         interval_seconds (float): Minimum time in seconds between logs.
         log_fn (callable): Function to handle log output (default: print).
-        max_logs_per_interval (int, optional): Max logs per interval.
-        time_fn (callable, optional): Custom time function.
-        async_mode (bool): If True, logs are queued and flushed in a background thread.
-        batch_size (int): Number of logs to batch before flushing (async_mode only).
+        max_logs_per_interval (int, optional): Maximum number of logs allowed per interval. If None, unlimited.
+        time_fn (callable, optional): Custom function to get the current time (default: time.time).
+        async_mode (bool): If True, logs are queued and processed in a background thread.
+        batch_size (int): Number of logs to batch before flushing in async mode.
         thread_safe (bool): If True, uses a lock for thread safety (default: False for max speed).
         level (str|int): Minimum log level to emit (default: 'INFO').
         fmt (str): Log message format (default: '[{level}] {asctime} {message}').
+
+    Usage:
+        logger = TimeBasedLogger(level='INFO', fmt='[{level}] {message}')
+        logger.info('Hello world')
     """
     def __init__(self, interval_seconds=1, log_fn=print, max_logs_per_interval=None, time_fn=None, async_mode=False, batch_size=10, thread_safe=False, level='INFO', fmt='[{level}] {asctime} {message}'):
         self.interval_seconds = interval_seconds
