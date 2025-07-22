@@ -8,6 +8,16 @@
 
 A Python logger that only logs messages at a specified time interval.
 
+---
+
+## 🚀 Production-Grade Features
+- **Log Levels:** DEBUG, INFO, WARNING, ERROR, CRITICAL, with filtering and convenience methods.
+- **Log Formatting:** Customizable log message format (default: `[{{level}}] {{asctime}} {{message}}`).
+- **Exception Logging:** Log exceptions with stack traces using `exc_info=True`.
+- **Structured/Extra Data:** Add extra fields to log records for structured logging.
+
+---
+
 ## Project Links
 - [PyPI](https://pypi.org/project/timebased-logger/)
 - [GitHub](https://github.com/yourusername/timebased-logger)
@@ -27,107 +37,55 @@ Or, just copy `timebased_logger.py` into your project.
 - Custom time function for advanced testing
 - **High performance async mode**: background logging with batching
 - **Thread safety**: optional locking for multi-threaded use
+- **Log levels, formatting, and exception logging** (see below)
 
 ## Usage
 
+### Basic Usage
 ```python
 from timebased_logger import TimeBasedLogger
-import time
-
-# Basic usage
 logger = TimeBasedLogger(interval_seconds=2)
 logger.log("Hello")
 logger.log("World")  # Will not log if called within 2 seconds
+```
 
-# With max_logs_per_interval
-logger = TimeBasedLogger(interval_seconds=2, max_logs_per_interval=2)
-logger.log("A")
-logger.log("B")
-logger.log("C")  # Will not log if max logs reached in interval
+### Log Levels and Filtering
+```python
+logger = TimeBasedLogger(level='WARNING')
+logger.info("This will NOT be logged")
+logger.warning("This will be logged")
+logger.error("This will also be logged")
+```
 
-# Pause and resume
-logger = TimeBasedLogger(interval_seconds=1)
-logger.log("Start")
-logger.pause()
-logger.log("Paused")  # Will not log
-logger.resume()
-logger.log("Resumed")  # Will log
+### Convenience Methods
+```python
+logger.debug("Debug message")
+logger.info("Info message")
+logger.warning("Warning message")
+logger.error("Error message")
+logger.critical("Critical message")
+```
 
-# Custom time function (for testing)
-fake_time = [0]
-def time_fn():
-    return fake_time[0]
-logger = TimeBasedLogger(interval_seconds=1, log_fn=print, time_fn=time_fn)
-logger.log("first")
-fake_time[0] += 1.1
-logger.log("second")  # Will log because fake time advanced
+### Log Formatting
+```python
+logger = TimeBasedLogger(fmt='[{level}] {asctime} {message}')
+logger.info("Formatted log message")
+```
 
-# High performance async mode with batching
-logger = TimeBasedLogger(interval_seconds=0, log_fn=print, async_mode=True, batch_size=10)
-for i in range(100):
-    logger.log(f"async {i}")
-logger.flush()  # Ensure all logs are processed
-logger.close()  # Cleanly stop the background thread
+### Exception Logging
+```python
+try:
+    1/0
+except ZeroDivisionError:
+    logger.error("An error occurred", exc_info=True)
+```
 
-# Thread-safe mode for multi-threaded logging
-logger = TimeBasedLogger(interval_seconds=0, log_fn=print, thread_safe=True)
-# Use logger from multiple threads safely
+### Structured/Extra Data
+```python
+logger = TimeBasedLogger(fmt='[{level}] {user} {message}')
+logger.info("User logged in", extra={'user': 'alice'})
 ```
 
 ## API Documentation
 
 ### `TimeBasedLogger`
-
-#### Constructor
-```python
-TimeBasedLogger(
-    interval_seconds=1,
-    log_fn=print,
-    max_logs_per_interval=None,
-    time_fn=None,
-    async_mode=False,
-    batch_size=10,
-    thread_safe=False
-)
-```
-- `interval_seconds` (float): Minimum time in seconds between logs.
-- `log_fn` (callable): Function to handle log output (default: `print`).
-- `max_logs_per_interval` (int, optional): Maximum number of logs allowed per interval. If `None`, unlimited.
-- `time_fn` (callable, optional): Custom function to get the current time (default: `time.time`). Useful for testing.
-- `async_mode` (bool): If `True`, logs are queued and processed in a background thread.
-- `batch_size` (int): Number of logs to batch before flushing in async mode.
-- `thread_safe` (bool): If `True`, uses a lock for thread safety (default: `False` for max speed).
-
-#### Methods
-- `log(message)`: Log a message if allowed by the interval and max logs per interval.
-- `pause()`: Pause logging. All `log()` calls will be ignored until resumed.
-- `resume()`: Resume logging. Allows immediate logging after resuming.
-- `flush()`: (async mode) Wait for the log queue to empty.
-- `close()`: (async mode) Cleanly stop the background logging thread.
-
-## Testing
-
-Tests are provided in `test_timebased_logger.py` and cover:
-- Logging only once per interval
-- Logging multiple times with sleep
-- Limiting logs per interval
-- Pause and resume
-- Custom time function for deterministic tests
-- **Async mode and batching**
-- **Thread safety**
-
-Run tests with:
-```sh
-pytest
-```
-
-## Documentation
-
-Full documentation is available in the [GitHub repository](https://github.com/prakashsellathurai/timebased-logger#readme).
-
-- **API Reference:** See above for all class methods and parameters.
-- **Examples:** See the Usage section and `demo.py` for more examples.
-- **Contributing:** Contributions are welcome! Please open issues or pull requests on GitHub.
-
-## License
-MIT 

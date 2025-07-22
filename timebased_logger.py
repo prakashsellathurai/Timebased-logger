@@ -5,11 +5,21 @@ A simple logger that logs messages based on time intervals, not message count.
 import time
 import threading
 import queue
-from typing import Optional, Callable
+from typing import Optional, Callable, Any
+import sys
+
+LOG_LEVELS = {
+    'DEBUG': 10,
+    'INFO': 20,
+    'WARNING': 30,
+    'ERROR': 40,
+    'CRITICAL': 50,
+}
 
 class TimeBasedLogger:
     """
     A logger that logs messages at a specified interval, with optional batching and async background logging for high performance.
+    Now supports log levels and formatting.
 
     Args:
         interval_seconds (float): Minimum time in seconds between logs.
@@ -19,8 +29,10 @@ class TimeBasedLogger:
         async_mode (bool): If True, logs are queued and flushed in a background thread.
         batch_size (int): Number of logs to batch before flushing (async_mode only).
         thread_safe (bool): If True, uses a lock for thread safety (default: False for max speed).
+        level (str|int): Minimum log level to emit (default: 'INFO').
+        fmt (str): Log message format (default: '[{level}] {asctime} {message}').
     """
-    def __init__(self, interval_seconds=1, log_fn=print, max_logs_per_interval=None, time_fn=None, async_mode=False, batch_size=10, thread_safe=False):
+    def __init__(self, interval_seconds=1, log_fn=print, max_logs_per_interval=None, time_fn=None, async_mode=False, batch_size=10, thread_safe=False, level='INFO', fmt='[{level}] {asctime} {message}'):
         self.interval_seconds = interval_seconds
         self.log_fn = log_fn
         self.max_logs_per_interval = max_logs_per_interval
@@ -33,21 +45,35 @@ class TimeBasedLogger:
         self.batch_size = batch_size
         self.thread_safe = thread_safe
         self._lock = threading.Lock() if thread_safe else None
+        self.level = self._level_to_int(level)
+        self.fmt = fmt
         if async_mode:
             self._queue = queue.Queue()
             self._stop_event = threading.Event()
             self._worker = threading.Thread(target=self._worker_fn, daemon=True)
             self._worker.start()
 
-    def log(self, message):
+    def _level_to_int(self, level: Any) -> int:
+        if isinstance(level, int):
+            return level
+        return LOG_LEVELS.get(str(level).upper(), 20)
+
+    def setLevel(self, level):
+        self.level = self._level_to_int(level)
+
+    def log(self, message, level='INFO', exc_info=None, extra=None):
+        lvl = self._level_to_int(level)
+        if lvl < self.level:
+            return
+        record = self._format_record(message, level, exc_info, extra)
         if self._paused:
             return
         if self.async_mode:
-            self._queue.put(message)
+            self._queue.put(record)
             return
-        self._log_internal(message)
+        self._log_internal(record)
 
-    def _log_internal(self, message):
+    def _log_internal(self, record):
         now = self.time_fn()
         if self.thread_safe:
             lock = self._lock
@@ -60,11 +86,11 @@ class TimeBasedLogger:
             if self.max_logs_per_interval is not None and self._logs_this_interval >= self.max_logs_per_interval:
                 return
             if self._last_log_time is None or now - self._last_log_time >= self.interval_seconds:
-                self.log_fn(message)
+                self.log_fn(record)
                 self._last_log_time = now
                 self._logs_this_interval += 1
             elif self.max_logs_per_interval is not None:
-                self.log_fn(message)
+                self.log_fn(record)
                 self._logs_this_interval += 1
         finally:
             if self.thread_safe:
@@ -89,7 +115,39 @@ class TimeBasedLogger:
 
     def _flush_batch(self, batch):
         for msg in batch:
-            self._log_internal(msg)
+            try:
+                self._log_internal(msg)
+            except Exception:
+                # Optionally log the error somewhere, or just ignore for robustness
+                pass
+
+    def _format_record(self, message, level, exc_info, extra):
+        asctime = time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(self.time_fn()))
+        base = {
+            'level': str(level).upper(),
+            'asctime': asctime,
+            'message': message,
+        }
+        if extra:
+            base.update(extra)
+        formatted = self.fmt.format(**base)
+        if exc_info:
+            import traceback
+            if not isinstance(exc_info, tuple):
+                exc_info = sys.exc_info()
+            formatted += '\n' + ''.join(traceback.format_exception(*exc_info))
+        return formatted
+
+    def debug(self, message, **kwargs):
+        self.log(message, level='DEBUG', **kwargs)
+    def info(self, message, **kwargs):
+        self.log(message, level='INFO', **kwargs)
+    def warning(self, message, **kwargs):
+        self.log(message, level='WARNING', **kwargs)
+    def error(self, message, exc_info=None, **kwargs):
+        self.log(message, level='ERROR', exc_info=exc_info, **kwargs)
+    def critical(self, message, exc_info=None, **kwargs):
+        self.log(message, level='CRITICAL', exc_info=exc_info, **kwargs)
 
     def flush(self):
         if self.async_mode:

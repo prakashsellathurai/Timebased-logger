@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="timebased_logger",
-    version="0.1.3",
+    version="0.1.4",
     description="A logger that logs messages based on time intervals, not message count.",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",

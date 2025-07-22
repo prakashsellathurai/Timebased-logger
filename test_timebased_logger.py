@@ -11,16 +11,13 @@ def test_logs_only_once_per_interval(monkeypatch):
     fake_time = [0]
     def time_fn():
         return fake_time[0]
-    logger = TimeBasedLogger(interval_seconds=1, log_fn=logs.append, time_fn=time_fn)
-
+    logger = TimeBasedLogger(interval_seconds=1, log_fn=logs.append, time_fn=time_fn, fmt='{message}')
     # Log at t=0
     logger.log("first")
     assert logs == ["first"]
-
     # Log again before interval: should not log
     logger.log("second")
     assert logs == ["first"]
-
     # Simulate time passing
     fake_time[0] += 1.1
     logger.log("third")
@@ -28,17 +25,17 @@ def test_logs_only_once_per_interval(monkeypatch):
 
 def test_multiple_logs_with_sleep():
     logs = []
-    logger = TimeBasedLogger(interval_seconds=0.2, log_fn=logs.append)
+    logger = TimeBasedLogger(interval_seconds=0.2, log_fn=logs.append, fmt='{message}')
     logger.log("A")
     time.sleep(0.1)
     logger.log("B")  # Should not log
     time.sleep(0.15)
     logger.log("C")  # Should log
-    assert logs == ["A", "C"] 
+    assert logs == ["A", "C"]
 
 def test_max_logs_per_interval():
     logs = []
-    logger = TimeBasedLogger(interval_seconds=1, log_fn=logs.append, max_logs_per_interval=2)
+    logger = TimeBasedLogger(interval_seconds=1, log_fn=logs.append, max_logs_per_interval=2, fmt='{message}')
     logger.log("first")
     logger.log("second")
     logger.log("third")  # Should not log, max 2 per interval
@@ -46,7 +43,7 @@ def test_max_logs_per_interval():
 
 def test_pause_and_resume():
     logs = []
-    logger = TimeBasedLogger(interval_seconds=1, log_fn=logs.append)
+    logger = TimeBasedLogger(interval_seconds=1, log_fn=logs.append, fmt='{message}')
     logger.log("first")
     logger.pause()
     logger.log("second")  # Should not log
@@ -59,13 +56,13 @@ def test_custom_time_fn():
     fake_time = [0]
     def time_fn():
         return fake_time[0]
-    logger = TimeBasedLogger(interval_seconds=1, log_fn=logs.append, time_fn=time_fn)
+    logger = TimeBasedLogger(interval_seconds=1, log_fn=logs.append, time_fn=time_fn, fmt='{message}')
     logger.log("first")
     fake_time[0] += 0.5
     logger.log("second")  # Should not log
     fake_time[0] += 0.6
     logger.log("third")  # Should log
-    assert logs == ["first", "third"] 
+    assert logs == ["first", "third"]
 
 def test_performance():
     import time as systime
@@ -77,12 +74,12 @@ def test_performance():
         logger.log(f"msg {i}")
     end = systime.time()
     duration = end - start
-    print(f"Performance: {N} logs in {duration:.4f} seconds ({N/duration:.2f} logs/sec)") 
+    print(f"Performance: {N} logs in {duration:.4f} seconds ({N/duration:.2f} logs/sec)")
 
 def test_async_mode_and_batch(monkeypatch):
     import time as systime
     logs = []
-    logger = TimeBasedLogger(interval_seconds=0, log_fn=logs.append, async_mode=True, batch_size=5)
+    logger = TimeBasedLogger(interval_seconds=0, log_fn=logs.append, async_mode=True, batch_size=5, fmt='{message}')
     N = 20
     for i in range(N):
         logger.log(f"async {i}")
@@ -106,7 +103,7 @@ def test_thread_safe():
     t2.start()
     t1.join()
     t2.join()
-    assert len(logs) == 2 * N 
+    assert len(logs) == 2 * N
 
 @given(
     interval=st.floats(min_value=0.01, max_value=2.0),
@@ -129,7 +126,7 @@ def test_fuzzy_timebased_logger(interval, max_logs, n_logs, time_jitter):
     if max_logs is not None:
         # In each interval, logs should not exceed max_logs
         # This is a fuzzy check, so we just check the global count
-        assert all([logs.count(msg) <= max_logs for msg in set(logs)]) 
+        assert all([logs.count(msg) <= max_logs for msg in set(logs)])
 
 def chaos_log_fn(logs, fail_prob=0.1):
     def log_fn(msg):
@@ -170,4 +167,32 @@ def test_chaos_timebased_logger():
     logger.close()
     # Check that the logger did not crash and logs were collected
     assert isinstance(logs, list)
-    assert all(isinstance(msg, str) for msg in logs) 
+    assert all(isinstance(msg, str) for msg in logs)
+
+def test_log_levels_and_formatting():
+    logs = []
+    logger = TimeBasedLogger(interval_seconds=0, level='WARNING', log_fn=logs.append, fmt='[{level}] {message}')
+    logger.debug('debug')
+    logger.info('info')
+    logger.warning('warn')
+    logger.error('err')
+    logger.critical('crit')
+    # Only WARNING and above should be logged
+    assert logs == ['[WARNING] warn', '[ERROR] err', '[CRITICAL] crit']
+    # Test setLevel
+    logger.setLevel('DEBUG')
+    logger.debug('debug2')
+    assert logs[-1] == '[DEBUG] debug2'
+    # Test custom extra fields in formatting
+    logger.fmt = '[{level}] {asctime} {foo} {message}'
+    logger.info('with extra', extra={'foo': 'BAR'})
+    assert 'BAR with extra' in logs[-1]
+
+def test_exception_logging():
+    logs = []
+    logger = TimeBasedLogger(log_fn=logs.append, fmt='{message}')
+    try:
+        1/0
+    except ZeroDivisionError:
+        logger.error('fail', exc_info=True)
+    assert any('ZeroDivisionError' in l for l in logs) 
