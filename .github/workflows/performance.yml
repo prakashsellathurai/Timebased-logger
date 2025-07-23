@@ -25,7 +25,7 @@ jobs:
         run: pytest --benchmark-disable-gc --benchmark-group-by=func test_timebased_logger.py
       - name: Upload Benchmark Results
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: benchmark-results
           path: .benchmarks  # pytest-benchmark's default output directory
