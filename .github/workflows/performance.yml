@@ -1,31 +1,30 @@
-name: Performance Benchmarks
+name: Update README with Performance Metrics
 
 on:
   push:
     branches:
       - main  # or your main branch
-  pull_request:
 
 jobs:
-  benchmark:
+  update_readme:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
-          python-version: '3.x'  # or your desired Python version
+          python-version: '3.x'
       - name: Install Dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt  # or any other dependencies
-          pip install pytest
-          pip install pytest-benchmark
+          pip install pytest pytest-benchmark
       - name: Run Benchmarks
-        run: pytest --benchmark-disable-gc --benchmark-group-by=func test_timebased_logger.py
-      - name: Upload Benchmark Results
-        if: always()
-        uses: actions/upload-artifact@v4
+        run: pytest --benchmark-disable-gc --benchmark-json=benchmark.json test_timebased_logger.py
+      - name: Update README with Metrics
+        run: |
+          python extract_metrics.py benchmark.json README.md
+      - name: Commit and Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          name: benchmark-results
-          path: .benchmarks  # pytest-benchmark's default output directory
+          commit_message: 'Update README with performance metrics'
+          file_pattern: README.md
