@@ -1,0 +1,31 @@
+name: Performance Benchmarks
+
+on:
+  push:
+    branches:
+      - main  # or your main branch
+  pull_request:
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v3
+        with:
+          python-version: '3.x'  # or your desired Python version
+      - name: Install Dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt  # or any other dependencies
+          pip install pytest
+          pip install pytest-benchmark
+      - name: Run Benchmarks
+        run: pytest --benchmark-disable-gc --benchmark-group-by=func test_timebased_logger.py
+      - name: Upload Benchmark Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: benchmark-results
+          path: .benchmarks  # pytest-benchmark's default output directory
