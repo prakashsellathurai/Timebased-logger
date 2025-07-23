@@ -196,3 +196,9 @@ def test_exception_logging():
     except ZeroDivisionError:
         logger.error('fail', exc_info=True)
     assert any('ZeroDivisionError' in l for l in logs) 
+
+def test_minimal_benchmark(benchmark):
+    logger = TimeBasedLogger()
+    def logging_op():
+        logger.log("Test message")
+    benchmark(logging_op)
