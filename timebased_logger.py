@@ -64,9 +64,18 @@ class TimeBasedLogger:
         return LOG_LEVELS.get(str(level).upper(), 20)
 
     def setLevel(self, level):
+        """Set the minimum log level for the logger."""
         self.level = self._level_to_int(level)
 
     def log(self, message, level='INFO', exc_info=None, extra=None):
+        """Logs a message with the specified level.
+
+        Args:
+            message (str): The message to log.
+            level (str): The log level (default: 'INFO').
+            exc_info (tuple, optional): Exception information to log.
+            extra (dict, optional): Extra context to add to the log message.
+        """
         lvl = self._level_to_int(level)
         if lvl < self.level:
             return
@@ -79,6 +88,11 @@ class TimeBasedLogger:
         self._log_internal(record)
 
     def _log_internal(self, record):
+        """Internal method to handle the actual logging.
+
+        Args:
+            record (str): The formatted log record.
+        """
         now = self.time_fn()
         if self.thread_safe:
             lock = self._lock
@@ -102,6 +116,9 @@ class TimeBasedLogger:
                 lock.release()
 
     def _worker_fn(self):
+        """Background worker function for async mode.
+        It retrieves messages from the queue and processes them in batches.
+        """
         batch = []
         while not self._stop_event.is_set() or not self._queue.empty():
             try:
@@ -119,6 +136,11 @@ class TimeBasedLogger:
             self._flush_batch(batch)
 
     def _flush_batch(self, batch):
+        """Flushes a batch of log messages.
+
+        Args:
+            batch (list): A list of log messages.
+        """
         for msg in batch:
             try:
                 self._log_internal(msg)
@@ -144,29 +166,40 @@ class TimeBasedLogger:
         return formatted
 
     def debug(self, message, **kwargs):
+        """Logs a message with level DEBUG."""
         self.log(message, level='DEBUG', **kwargs)
     def info(self, message, **kwargs):
+        """Logs a message with level INFO."""
         self.log(message, level='INFO', **kwargs)
     def warning(self, message, **kwargs):
+        """Logs a message with level WARNING."""
         self.log(message, level='WARNING', **kwargs)
     def error(self, message, exc_info=None, **kwargs):
+        """Logs a message with level ERROR."""
         self.log(message, level='ERROR', exc_info=exc_info, **kwargs)
     def critical(self, message, exc_info=None, **kwargs):
+        """Logs a message with level CRITICAL."""
         self.log(message, level='CRITICAL', exc_info=exc_info, **kwargs)
 
     def flush(self):
+        """Flushes any remaining messages in the queue (for async mode)."""
         if self.async_mode:
             while not self._queue.empty():
                 time.sleep(0.01)
 
     def close(self):
+        """Closes the logger, stopping the background worker (for async mode)."""
         if self.async_mode:
             self._stop_event.set()
             self._worker.join()
 
     def pause(self):
+        """Pauses the logger, preventing new messages from being logged."""
         self._paused = True
 
     def resume(self):
+        """Resumes the logger after being paused.
+        Allows immediate logging after resume.
+        """
         self._paused = False
         self._last_log_time = None  # Allow immediate logging after resume 
