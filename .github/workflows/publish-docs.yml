@@ -20,8 +20,10 @@ jobs:
         run: pip install pdoc3
       - name: Generate HTML docs
         run: pdoc --html timebased_logger.py --output-dir docs
+      - name: Rename main HTML file to index.html
+        run: mv docs/timebased_logger.html docs/index.html
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v4
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./docs 
+          publish_dir: ./docs
