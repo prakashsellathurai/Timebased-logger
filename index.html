@@ -106,9 +106,18 @@ A production-grade logger that logs messages based on time intervals, log levels
         return LOG_LEVELS.get(str(level).upper(), 20)
 
     def setLevel(self, level):
+        &#34;&#34;&#34;Set the minimum log level for the logger.&#34;&#34;&#34;
         self.level = self._level_to_int(level)
 
     def log(self, message, level=&#39;INFO&#39;, exc_info=None, extra=None):
+        &#34;&#34;&#34;Logs a message with the specified level.
+
+        Args:
+            message (str): The message to log.
+            level (str): The log level (default: &#39;INFO&#39;).
+            exc_info (tuple, optional): Exception information to log.
+            extra (dict, optional): Extra context to add to the log message.
+        &#34;&#34;&#34;
         lvl = self._level_to_int(level)
         if lvl &lt; self.level:
             return
@@ -121,6 +130,11 @@ A production-grade logger that logs messages based on time intervals, log levels
         self._log_internal(record)
 
     def _log_internal(self, record):
+        &#34;&#34;&#34;Internal method to handle the actual logging.
+
+        Args:
+            record (str): The formatted log record.
+        &#34;&#34;&#34;
         now = self.time_fn()
         if self.thread_safe:
             lock = self._lock
@@ -144,6 +158,9 @@ A production-grade logger that logs messages based on time intervals, log levels
                 lock.release()
 
     def _worker_fn(self):
+        &#34;&#34;&#34;Background worker function for async mode.
+        It retrieves messages from the queue and processes them in batches.
+        &#34;&#34;&#34;
         batch = []
         while not self._stop_event.is_set() or not self._queue.empty():
             try:
@@ -161,6 +178,11 @@ A production-grade logger that logs messages based on time intervals, log levels
             self._flush_batch(batch)
 
     def _flush_batch(self, batch):
+        &#34;&#34;&#34;Flushes a batch of log messages.
+
+        Args:
+            batch (list): A list of log messages.
+        &#34;&#34;&#34;
         for msg in batch:
             try:
                 self._log_internal(msg)
@@ -186,30 +208,41 @@ A production-grade logger that logs messages based on time intervals, log levels
         return formatted
 
     def debug(self, message, **kwargs):
+        &#34;&#34;&#34;Logs a message with level DEBUG.&#34;&#34;&#34;
         self.log(message, level=&#39;DEBUG&#39;, **kwargs)
     def info(self, message, **kwargs):
+        &#34;&#34;&#34;Logs a message with level INFO.&#34;&#34;&#34;
         self.log(message, level=&#39;INFO&#39;, **kwargs)
     def warning(self, message, **kwargs):
+        &#34;&#34;&#34;Logs a message with level WARNING.&#34;&#34;&#34;
         self.log(message, level=&#39;WARNING&#39;, **kwargs)
     def error(self, message, exc_info=None, **kwargs):
+        &#34;&#34;&#34;Logs a message with level ERROR.&#34;&#34;&#34;
         self.log(message, level=&#39;ERROR&#39;, exc_info=exc_info, **kwargs)
     def critical(self, message, exc_info=None, **kwargs):
+        &#34;&#34;&#34;Logs a message with level CRITICAL.&#34;&#34;&#34;
         self.log(message, level=&#39;CRITICAL&#39;, exc_info=exc_info, **kwargs)
 
     def flush(self):
+        &#34;&#34;&#34;Flushes any remaining messages in the queue (for async mode).&#34;&#34;&#34;
         if self.async_mode:
             while not self._queue.empty():
                 time.sleep(0.01)
 
     def close(self):
+        &#34;&#34;&#34;Closes the logger, stopping the background worker (for async mode).&#34;&#34;&#34;
         if self.async_mode:
             self._stop_event.set()
             self._worker.join()
 
     def pause(self):
+        &#34;&#34;&#34;Pauses the logger, preventing new messages from being logged.&#34;&#34;&#34;
         self._paused = True
 
     def resume(self):
+        &#34;&#34;&#34;Resumes the logger after being paused.
+        Allows immediate logging after resume.
+        &#34;&#34;&#34;
         self._paused = False
         self._last_log_time = None  # Allow immediate logging after resume </code></pre>
 </details>
@@ -250,11 +283,12 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def close(self):
+    &#34;&#34;&#34;Closes the logger, stopping the background worker (for async mode).&#34;&#34;&#34;
     if self.async_mode:
         self._stop_event.set()
         self._worker.join()</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Closes the logger, stopping the background worker (for async mode).</p></div>
 </dd>
 <dt id="timebased_logger.TimeBasedLogger.critical"><code class="name flex">
 <span>def <span class="ident">critical</span></span>(<span>self, message, exc_info=None, **kwargs)</span>
@@ -265,9 +299,10 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def critical(self, message, exc_info=None, **kwargs):
+    &#34;&#34;&#34;Logs a message with level CRITICAL.&#34;&#34;&#34;
     self.log(message, level=&#39;CRITICAL&#39;, exc_info=exc_info, **kwargs)</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Logs a message with level CRITICAL.</p></div>
 </dd>
 <dt id="timebased_logger.TimeBasedLogger.debug"><code class="name flex">
 <span>def <span class="ident">debug</span></span>(<span>self, message, **kwargs)</span>
@@ -278,9 +313,10 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def debug(self, message, **kwargs):
+    &#34;&#34;&#34;Logs a message with level DEBUG.&#34;&#34;&#34;
     self.log(message, level=&#39;DEBUG&#39;, **kwargs)</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Logs a message with level DEBUG.</p></div>
 </dd>
 <dt id="timebased_logger.TimeBasedLogger.error"><code class="name flex">
 <span>def <span class="ident">error</span></span>(<span>self, message, exc_info=None, **kwargs)</span>
@@ -291,9 +327,10 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def error(self, message, exc_info=None, **kwargs):
+    &#34;&#34;&#34;Logs a message with level ERROR.&#34;&#34;&#34;
     self.log(message, level=&#39;ERROR&#39;, exc_info=exc_info, **kwargs)</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Logs a message with level ERROR.</p></div>
 </dd>
 <dt id="timebased_logger.TimeBasedLogger.flush"><code class="name flex">
 <span>def <span class="ident">flush</span></span>(<span>self)</span>
@@ -304,11 +341,12 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def flush(self):
+    &#34;&#34;&#34;Flushes any remaining messages in the queue (for async mode).&#34;&#34;&#34;
     if self.async_mode:
         while not self._queue.empty():
             time.sleep(0.01)</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Flushes any remaining messages in the queue (for async mode).</p></div>
 </dd>
 <dt id="timebased_logger.TimeBasedLogger.info"><code class="name flex">
 <span>def <span class="ident">info</span></span>(<span>self, message, **kwargs)</span>
@@ -319,9 +357,10 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def info(self, message, **kwargs):
+    &#34;&#34;&#34;Logs a message with level INFO.&#34;&#34;&#34;
     self.log(message, level=&#39;INFO&#39;, **kwargs)</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Logs a message with level INFO.</p></div>
 </dd>
 <dt id="timebased_logger.TimeBasedLogger.log"><code class="name flex">
 <span>def <span class="ident">log</span></span>(<span>self, message, level='INFO', exc_info=None, extra=None)</span>
@@ -332,6 +371,14 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def log(self, message, level=&#39;INFO&#39;, exc_info=None, extra=None):
+    &#34;&#34;&#34;Logs a message with the specified level.
+
+    Args:
+        message (str): The message to log.
+        level (str): The log level (default: &#39;INFO&#39;).
+        exc_info (tuple, optional): Exception information to log.
+        extra (dict, optional): Extra context to add to the log message.
+    &#34;&#34;&#34;
     lvl = self._level_to_int(level)
     if lvl &lt; self.level:
         return
@@ -343,7 +390,18 @@ logger.info('Hello world')</p></div>
         return
     self._log_internal(record)</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Logs a message with the specified level.</p>
+<h2 id="args">Args</h2>
+<dl>
+<dt><strong><code>message</code></strong> :&ensp;<code>str</code></dt>
+<dd>The message to log.</dd>
+<dt><strong><code>level</code></strong> :&ensp;<code>str</code></dt>
+<dd>The log level (default: 'INFO').</dd>
+<dt><strong><code>exc_info</code></strong> :&ensp;<code>tuple</code>, optional</dt>
+<dd>Exception information to log.</dd>
+<dt><strong><code>extra</code></strong> :&ensp;<code>dict</code>, optional</dt>
+<dd>Extra context to add to the log message.</dd>
+</dl></div>
 </dd>
 <dt id="timebased_logger.TimeBasedLogger.pause"><code class="name flex">
 <span>def <span class="ident">pause</span></span>(<span>self)</span>
@@ -354,9 +412,10 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def pause(self):
+    &#34;&#34;&#34;Pauses the logger, preventing new messages from being logged.&#34;&#34;&#34;
     self._paused = True</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Pauses the logger, preventing new messages from being logged.</p></div>
 </dd>
 <dt id="timebased_logger.TimeBasedLogger.resume"><code class="name flex">
 <span>def <span class="ident">resume</span></span>(<span>self)</span>
@@ -367,10 +426,14 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def resume(self):
+    &#34;&#34;&#34;Resumes the logger after being paused.
+    Allows immediate logging after resume.
+    &#34;&#34;&#34;
     self._paused = False
     self._last_log_time = None  # Allow immediate logging after resume </code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Resumes the logger after being paused.
+Allows immediate logging after resume.</p></div>
 </dd>
 <dt id="timebased_logger.TimeBasedLogger.setLevel"><code class="name flex">
 <span>def <span class="ident">setLevel</span></span>(<span>self, level)</span>
@@ -381,9 +444,10 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def setLevel(self, level):
+    &#34;&#34;&#34;Set the minimum log level for the logger.&#34;&#34;&#34;
     self.level = self._level_to_int(level)</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Set the minimum log level for the logger.</p></div>
 </dd>
 <dt id="timebased_logger.TimeBasedLogger.warning"><code class="name flex">
 <span>def <span class="ident">warning</span></span>(<span>self, message, **kwargs)</span>
@@ -394,9 +458,10 @@ logger.info('Hello world')</p></div>
 <span>Expand source code</span>
 </summary>
 <pre><code class="python">def warning(self, message, **kwargs):
+    &#34;&#34;&#34;Logs a message with level WARNING.&#34;&#34;&#34;
     self.log(message, level=&#39;WARNING&#39;, **kwargs)</code></pre>
 </details>
-<div class="desc"></div>
+<div class="desc"><p>Logs a message with level WARNING.</p></div>
 </dd>
 </dl>
 </dd>
