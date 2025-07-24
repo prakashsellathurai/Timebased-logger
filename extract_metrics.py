@@ -19,7 +19,7 @@ def format_benchmark_row(bench):
     rounds = bench["stats"]["rounds"]
     iterations = 1  # Assume 1 since your original string has 1 iteration
 
-    name = bench["name"]
+    name = bench["name"].replace("test_", "").capitalize().replace("_", " ")
 
     # Format as Markdown table row
     row = (
