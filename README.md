@@ -17,6 +17,11 @@ A Python logger that only logs messages at a specified time interval.
 
 ---
 
+
+## Inspiration & Acknowledgement
+
+This project was inspired by the article [Log by Time, not by Count](https://johnscolaro.xyz/blog/log-by-time-not-by-count) by John Scolaro. Highly recommended for anyone interested in effective logging strategies in high-frequency systems.
+
 ## Project Links
 - [PyPI](https://pypi.org/project/timebased-logger/)
 - [GitHub](https://github.com/yourusername/timebased-logger)
