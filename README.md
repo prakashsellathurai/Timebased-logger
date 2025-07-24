@@ -95,12 +95,15 @@ logger.info("User logged in", extra={'user': 'alice'})
 
 <!-- PERFORMANCE_METRICS_START -->
 
-| Metric | Value |
-|---|---|
-| Average execution time | 0.000002 seconds |
-| Standard deviation | 0.000001 seconds |
-| Minimum execution time | 0.000002 seconds |
-| Maximum execution time | 0.000150 seconds |
+| Name (time in us)        |    Min    |     Max    |    Mean    |  StdDev   |   Median   |    IQR    | Outliers  | OPS (Kops/s) | Rounds | Iterations |
+|------------------------- |-----------|------------|------------|-----------|------------|-----------|-----------|--------------|--------|------------|
+| test_minimal_benchmark  |    1.6150 |    24.7750 |     2.0193 |    0.9212 |     1.7150 |    0.0995 | 803;2104  |     495.2227 |   9036 |          1 |
+
+**Legend:**
+
+- **Outliers:** 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.  
+- **OPS:** Operations Per Second, computed as 1 / Mean (displayed in Kops/s = thousands of operations per second)
+
 
 <!-- PERFORMANCE_METRICS_END -->
 

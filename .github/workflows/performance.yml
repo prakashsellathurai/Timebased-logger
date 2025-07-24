@@ -9,6 +9,8 @@ on:
 jobs:
   benchmark:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
@@ -24,9 +26,10 @@ jobs:
           pip install hypothesis  # Add this line to install hypothesis
       - name: Run Benchmarks
         run: pytest --benchmark-disable-gc --benchmark-json=benchmark.json test_timebased_logger.py
-      - name: Upload Benchmark Results
-        if: always()
-        uses: actions/upload-artifact@v4
+      - name: Update README with benchmarks
+        run: python extract_metrics.py benchmark.json README.md
+      - name: Commit updated README
+        uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          name: benchmark-results
-          path: benchmark.json
+          file_pattern: README.md
+          commit_message: "Automated: Update benchmarks in README [skip ci]"

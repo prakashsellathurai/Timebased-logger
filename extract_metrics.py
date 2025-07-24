@@ -1,82 +1,114 @@
 import json
 import re
-import os
+import sys
+from pathlib import Path
 
-def extract_metrics(benchmark_file):
-    """Extracts mean execution time from a benchmark JSON file."""
-    with open(benchmark_file, 'r') as f:
-        data = json.load(f)
-        if not data or 'benchmarks' not in data or not data['benchmarks']:
-            return "No benchmark data found in the file."
-        
-        benchmark_data = data['benchmarks'][0]  # assuming only one benchmark
-        stats = benchmark_data['stats']
-        mean_time = stats['mean']
-        stddev_time = stats['stddev']
-        min_time = stats['min']
-        max_time = stats['max']
+def format_benchmark_row(bench):
+    # Convert seconds to microseconds (us)
+    min_us = bench["stats"]["min"] * 1e6
+    max_us = bench["stats"]["max"] * 1e6
+    mean_us = bench["stats"]["mean"] * 1e6
+    stddev_us = bench["stats"]["stddev"] * 1e6
+    median_us = bench["stats"]["median"] * 1e6
+    iqr_us = bench["stats"]["iqr"] * 1e6
 
-        metric_string = f"""
-| Metric | Value |
-|---|---|
-| Average execution time | {mean_time:.6f} seconds |
-| Standard deviation | {stddev_time:.6f} seconds |
-| Minimum execution time | {min_time:.6f} seconds |
-| Maximum execution time | {max_time:.6f} seconds |
-"""
-        
-        return f"{metric_string}"
+    # OPS in original is per second; convert to Kops/s (thousands/s)
+    ops_kops = bench["stats"]["ops"] / 1000.0
 
-def update_readme(json_file, readme_file):
-    """Extract metrics from JSON and update README.md."""
-    try:
-        metric_string = extract_metrics(json_file)
+    outliers = bench["stats"].get("outliers", "")
+    rounds = bench["stats"]["rounds"]
+    iterations = 1  # Assume 1 since your original string has 1 iteration
 
-        # Read the README content
-        with open(readme_file, 'r') as f:
-            readme_content = f.read()
+    name = bench["name"]
 
-        # Define the start and end markers for the metrics section
-        start_marker = "<!-- PERFORMANCE_METRICS_START -->"
-        end_marker = "<!-- PERFORMANCE_METRICS_END -->"
+    # Format as Markdown table row
+    row = (
+        f"| {name:<23} | "
+        f"{min_us:9.4f} | "
+        f"{max_us:10.4f} | "
+        f"{mean_us:10.4f} | "
+        f"{stddev_us:9.4f} | "
+        f"{median_us:10.4f} | "
+        f"{iqr_us:9.4f} | "
+        f"{outliers:<9} | "
+        f"{ops_kops:12.4f} | "
+        f"{rounds:6} | "
+        f"{iterations:10} |"
+    )
+    return row
 
-        # Create the regex pattern
-        pattern = re.compile(
-            re.escape(start_marker) + r"(.*?)" + re.escape(end_marker),
-            re.DOTALL
-        )
+def update_readme(readme_path, new_content, start_marker, end_marker):
+    text = Path(readme_path).read_text(encoding="utf-8")
 
-        # Check if the markers exist in the README
-        if start_marker not in readme_content or end_marker not in readme_content:
-            print(f"Markers '{start_marker}' and '{end_marker}' not found in README.")
-            return
+    pattern = re.compile(
+        rf"({re.escape(start_marker)})(.*)({re.escape(end_marker)})",
+        flags=re.DOTALL,
+    )
 
-        # Create the replacement string
-        replacement = f"{start_marker}\n{metric_string}\n{end_marker}"
+    replacement = f"{start_marker}\n\n{new_content}\n\n{end_marker}"
+    new_text, count = pattern.subn(replacement, text)
 
-        # Perform the replacement
-        updated_readme = pattern.sub(replacement, readme_content)
-
-        # Write the updated README content back to the file
-        with open(readme_file, 'w') as f:
-            f.write(updated_readme)
-
-    except Exception as e:
-        print(f"CRITICAL ERROR: {e}")
-
-if __name__ == "__main__":
-    import sys
-
-    if len(sys.argv) != 3:
-        print("Usage: python extract_metrics.py <benchmark_json_file> <readme_file>")
+    if count == 0:
+        print("ERROR: Markers not found in README file.")
         sys.exit(1)
 
-    json_file = sys.argv[1]
-    readme_file = sys.argv[2]
+    if new_text != text:
+        Path(readme_path).write_text(new_text, encoding="utf-8")
+        print("README.md updated successfully.")
+    else:
+        print("No changes needed in README.md.")
 
-    print(f"Current working directory: {os.getcwd()}")
-    print(f"Benchmark file exists: {os.path.exists(json_file)}")
-    print(f"Readme file exists: {os.path.exists(readme_file)}")
+def main():
+    if len(sys.argv) != 3:
+        print("Usage: python extract_metrics.py benchmark.json README.md")
+        sys.exit(1)
+
+    benchmark_file = Path(sys.argv[1])
+    readme_file = Path(sys.argv[2])
+
+    if not benchmark_file.exists():
+        print(f"Benchmark file {benchmark_file} does not exist.")
+        sys.exit(1)
+
+    if not readme_file.exists():
+        print(f"README file {readme_file} does not exist.")
+        sys.exit(1)
+
+    # Load benchmark data JSON
+    data = json.loads(benchmark_file.read_text(encoding="utf-8"))
+
+    # Extract benchmarks list; for example take first benchmark only
+    benchmarks = data.get("benchmarks", [])
+    if not benchmarks:
+        print("No benchmarks found in the JSON data.")
+        sys.exit(1)
+
+    bench = benchmarks[0]  # Or extend to multiple benchmarks as needed
+
+    # Prepare Markdown table content
+    header = (
+        "| Name (time in us)        |    Min    |     Max    |    Mean    |  StdDev   |   Median   |    IQR    | Outliers  | OPS (Kops/s) | Rounds | Iterations |"
+    )
+    separator = (
+        "|------------------------- |-----------|------------|------------|-----------|------------|-----------|-----------|--------------|--------|------------|"
+    )
+    row = format_benchmark_row(bench)
+    legend = """
+**Legend:**
+
+- **Outliers:** 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.  
+- **OPS:** Operations Per Second, computed as 1 / Mean (displayed in Kops/s = thousands of operations per second)
+"""
+
+    full_content = "\n".join([header, separator, row, legend])
+
+    # Define markers in README.md
+    START_MARKER = "<!-- PERFORMANCE_METRICS_START -->"
+    END_MARKER = "<!-- PERFORMANCE_METRICS_END -->"
+
+    # Update README.md with new benchmarks table
+    update_readme(readme_file, full_content, START_MARKER, END_MARKER)
 
 
-    update_readme(json_file, readme_file)
+if __name__ == "__main__":
+    main()
