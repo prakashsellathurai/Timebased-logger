@@ -2,20 +2,35 @@ import json
 import re
 import os
 
+def extract_metrics(benchmark_file):
+    """Extracts mean execution time from a benchmark JSON file."""
+    with open(benchmark_file, 'r') as f:
+        data = json.load(f)
+        if not data or 'benchmarks' not in data or not data['benchmarks']:
+            return "No benchmark data found in the file."
+        
+        benchmark_data = data['benchmarks'][0]  # assuming only one benchmark
+        stats = benchmark_data['stats']
+        mean_time = stats['mean']
+        stddev_time = stats['stddev']
+        min_time = stats['min']
+        max_time = stats['max']
+
+        metric_string = f"""
+| Metric | Value |
+|---|---|
+| Average execution time | {mean_time:.6f} seconds |
+| Standard deviation | {stddev_time:.6f} seconds |
+| Minimum execution time | {min_time:.6f} seconds |
+| Maximum execution time | {max_time:.6f} seconds |
+"""
+        
+        return f"{metric_string}"
+
 def update_readme(json_file, readme_file):
     """Extract metrics from JSON and update README.md."""
     try:
-        with open(json_file, 'r') as f:
-            data = json.load(f)
-
-        # Extract metrics (example: average execution time)
-        if 'benchmarks' not in data or not data['benchmarks']:
-            print("No benchmark data found in JSON file.")
-            return
-
-        benchmark_data = data['benchmarks'][0]  # assuming only one benchmark
-        mean_time = benchmark_data['stats']['mean']
-        metric_string = f"Average execution time: {mean_time:.4f} seconds"
+        metric_string = extract_metrics(json_file)
 
         # Read the README content
         with open(readme_file, 'r') as f:

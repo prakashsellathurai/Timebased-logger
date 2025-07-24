@@ -66,3 +66,5 @@ coverage.xml
 
 # Windows
 Thumbs.db 
+__pycache__/test_timebased_logger.cpython-38-pytest-8.3.5.pyc
+__pycache__/timebased_logger.cpython-38.pyc

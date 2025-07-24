@@ -94,5 +94,13 @@ logger.info("User logged in", extra={'user': 'alice'})
 ## Performance Metrics
 
 <!-- PERFORMANCE_METRICS_START -->
+
+| Metric | Value |
+|---|---|
+| Average execution time | 0.000002 seconds |
+| Standard deviation | 0.000001 seconds |
+| Minimum execution time | 0.000002 seconds |
+| Maximum execution time | 0.000150 seconds |
+
 <!-- PERFORMANCE_METRICS_END -->
 
