@@ -83,24 +83,26 @@ def main():
         print("No benchmarks found in the JSON data.")
         sys.exit(1)
 
-    bench = benchmarks[0]  # Or extend to multiple benchmarks as needed
-
-    # Prepare Markdown table content
+   # Prepare Markdown table content
     header = (
         "| Name (time in us)        |    Min    |     Max    |    Mean    |  StdDev   |   Median   |    IQR    | Outliers  | OPS (Kops/s) | Rounds | Iterations |"
     )
     separator = (
         "|------------------------- |-----------|------------|------------|-----------|------------|-----------|-----------|--------------|--------|------------|"
     )
-    row = format_benchmark_row(bench)
+
+    # Format every benchmark entry into a row, then join all rows
+    rows = [format_benchmark_row(bench) for bench in benchmarks]
+
     legend = """
-**Legend:**
+    **Legend:**
 
-- **Outliers:** 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.  
-- **OPS:** Operations Per Second, computed as 1 / Mean (displayed in Kops/s = thousands of operations per second)
-"""
 
-    full_content = "\n".join([header, separator, row, legend])
+    - **Outliers:** 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.  
+    - **OPS:** Operations Per Second, computed as 1 / Mean (displayed in Kops/s = thousands of operations per second)
+    """
+
+    full_content = "\n".join([header, separator] + rows + [legend])
 
     # Define markers in README.md
     START_MARKER = "<!-- PERFORMANCE_METRICS_START -->"

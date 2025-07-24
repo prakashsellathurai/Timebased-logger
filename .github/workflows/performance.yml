@@ -25,7 +25,7 @@ jobs:
           pip install pytest-benchmark
           pip install hypothesis  # Add this line to install hypothesis
       - name: Run Benchmarks
-        run: pytest --benchmark-disable-gc --benchmark-json=benchmark.json test_timebased_logger.py
+        run: pytest --benchmark-disable-gc --benchmark-json=benchmark.json test_logger_benchmarks.py
       - name: Update README with benchmarks
         run: python extract_metrics.py benchmark.json README.md
       - name: Commit updated README

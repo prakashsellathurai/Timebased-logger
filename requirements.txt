@@ -1,2 +1,5 @@
-hypothesis 
-pytest-timeout 
+pytest
+pytest-benchmark
+hypothesis
+loguru
+structlog
