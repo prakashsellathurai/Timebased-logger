@@ -22,7 +22,7 @@ A Python logger that only logs messages at a specified time interval.
 
 | Name (time in us)        |    Min    |     Max    |    Mean    |  StdDev   |   Median   |    IQR    | Outliers  | OPS (Kops/s) | Rounds | Iterations |
 |------------------------- |-----------|------------|------------|-----------|------------|-----------|-----------|--------------|--------|------------|
-| test_minimal_benchmark  |    2.8960 |    28.8740 |     3.0858 |    0.8426 |     2.9650 |    0.0390 | 347;707   |     324.0692 |  11731 |          1 |
+| test_minimal_benchmark  |    2.9960 |    22.2110 |     3.1959 |    0.5634 |     3.1460 |    0.0600 | 169;411   |     312.9056 |  16154 |          1 |
 
 **Legend:**
 
