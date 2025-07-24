@@ -15,6 +15,24 @@ A Python logger that only logs messages at a specified time interval.
 - **Exception Logging:** Log exceptions with stack traces using `exc_info=True`.
 - **Structured/Extra Data:** Add extra fields to log records for structured logging.
 
+
+### Performance Metrics
+
+<!-- PERFORMANCE_METRICS_START -->
+
+| Name (time in us)        |    Min    |     Max    |    Mean    |  StdDev   |   Median   |    IQR    | Outliers  | OPS (Kops/s) | Rounds | Iterations |
+|------------------------- |-----------|------------|------------|-----------|------------|-----------|-----------|--------------|--------|------------|
+| test_minimal_benchmark  |    2.8960 |    28.8740 |     3.0858 |    0.8426 |     2.9650 |    0.0390 | 347;707   |     324.0692 |  11731 |          1 |
+
+**Legend:**
+
+- **Outliers:** 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.  
+- **OPS:** Operations Per Second, computed as 1 / Mean (displayed in Kops/s = thousands of operations per second)
+
+
+<!-- PERFORMANCE_METRICS_END -->
+
+
 ---
 
 
@@ -91,19 +109,4 @@ logger.info("User logged in", extra={'user': 'alice'})
 ```
 
 
-## Performance Metrics
-
-<!-- PERFORMANCE_METRICS_START -->
-
-| Name (time in us)        |    Min    |     Max    |    Mean    |  StdDev   |   Median   |    IQR    | Outliers  | OPS (Kops/s) | Rounds | Iterations |
-|------------------------- |-----------|------------|------------|-----------|------------|-----------|-----------|--------------|--------|------------|
-| test_minimal_benchmark  |    2.8960 |    28.8740 |     3.0858 |    0.8426 |     2.9650 |    0.0390 | 347;707   |     324.0692 |  11731 |          1 |
-
-**Legend:**
-
-- **Outliers:** 1 Standard Deviation from Mean; 1.5 IQR (InterQuartile Range) from 1st Quartile and 3rd Quartile.  
-- **OPS:** Operations Per Second, computed as 1 / Mean (displayed in Kops/s = thousands of operations per second)
-
-
-<!-- PERFORMANCE_METRICS_END -->
 
