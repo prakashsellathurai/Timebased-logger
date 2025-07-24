@@ -1,47 +1,67 @@
 import json
 import re
+import os
 
 def update_readme(json_file, readme_file):
     """Extract metrics from JSON and update README.md."""
+    try:
+        with open(json_file, 'r') as f:
+            data = json.load(f)
 
-    with open(json_file, 'r') as f:
-        data = json.load(f)
+        # Extract metrics (example: average execution time)
+        if 'benchmarks' not in data or not data['benchmarks']:
+            print("No benchmark data found in JSON file.")
+            return
 
-    # Extract metrics (example: average execution time)
-    if 'benchmarks' not in data or not data['benchmarks']:
-        print("No benchmark data found in JSON file.")
-        return
+        benchmark_data = data['benchmarks'][0]  # assuming only one benchmark
+        mean_time = benchmark_data['stats']['mean']
+        metric_string = f"Average execution time: {mean_time:.4f} seconds"
 
-    benchmark_data = data['benchmarks'][0] # assuming only one benchmark
-    mean_time = benchmark_data['stats']['mean']
-    metric_string = f"Average execution time: {mean_time:.4f} seconds"
+        # Read the README content
+        with open(readme_file, 'r') as f:
+            readme_content = f.read()
 
-    # Read the README content
-    with open(readme_file, 'r') as f:
-        readme_content = f.read()
+        # Define the start and end markers for the metrics section
+        start_marker = "<!-- PERFORMANCE_METRICS_START -->"
+        end_marker = "<!-- PERFORMANCE_METRICS_END -->"
 
-    # Find the Metrics section
-    metrics_header = "## Performance Metrics"
-    if metrics_header not in readme_content:
-        print(f"Metrics header '{metrics_header}' not found in README. Creating one.")
-        readme_content += f"\n{metrics_header}\n"
+        # Create the regex pattern
+        pattern = re.compile(
+            re.escape(start_marker) + r"(.*?)" + re.escape(end_marker),
+            re.DOTALL
+        )
 
-    # Regex to find lines after the metrics header until the next header
-    pattern = re.compile(rf"{re.escape(metrics_header)}\n(.*?)(?=\n##|\Z)", re.DOTALL)
+        # Check if the markers exist in the README
+        if start_marker not in readme_content or end_marker not in readme_content:
+            print(f"Markers '{start_marker}' and '{end_marker}' not found in README.")
+            return
 
-    match = pattern.search(readme_content)
+        # Create the replacement string
+        replacement = f"{start_marker}\n{metric_string}\n{end_marker}"
 
-    if match:
-        existing_metrics = match.group(1).strip()  # Existing text after the header
-        updated_metrics = f"{metric_string}\n" # Add new metrics.
+        # Perform the replacement
+        updated_readme = pattern.sub(replacement, readme_content)
 
-        # Replace the old section with updated metrics
-        updated_readme = pattern.sub(f"{metrics_header}\n{updated_metrics}", readme_content)
+        # Write the updated README content back to the file
+        with open(readme_file, 'w') as f:
+            f.write(updated_readme)
 
-    else:
-        print("Could not find existing Metrics section, appending new metrics.")
-        updated_readme = readme_content + f"\n{metric_string}\n"
+    except Exception as e:
+        print(f"CRITICAL ERROR: {e}")
 
-    # Write the updated README content back to the file
-    with open(readme_file, 'w') as f:
-        f.write(updated_readme)
+if __name__ == "__main__":
+    import sys
+
+    if len(sys.argv) != 3:
+        print("Usage: python extract_metrics.py <benchmark_json_file> <readme_file>")
+        sys.exit(1)
+
+    json_file = sys.argv[1]
+    readme_file = sys.argv[2]
+
+    print(f"Current working directory: {os.getcwd()}")
+    print(f"Benchmark file exists: {os.path.exists(json_file)}")
+    print(f"Readme file exists: {os.path.exists(readme_file)}")
+
+
+    update_readme(json_file, readme_file)

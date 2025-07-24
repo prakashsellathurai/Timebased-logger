@@ -88,5 +88,6 @@ logger.info("User logged in", extra={'user': 'alice'})
 
 ## Performance Metrics
 
-<!-- Performance metrics will be automatically updated here -->
+<!-- PERFORMANCE_METRICS_START -->
+<!-- PERFORMANCE_METRICS_END -->
 
