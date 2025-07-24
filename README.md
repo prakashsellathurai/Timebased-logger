@@ -97,7 +97,7 @@ logger.info("User logged in", extra={'user': 'alice'})
 
 | Name (time in us)        |    Min    |     Max    |    Mean    |  StdDev   |   Median   |    IQR    | Outliers  | OPS (Kops/s) | Rounds | Iterations |
 |------------------------- |-----------|------------|------------|-----------|------------|-----------|-----------|--------------|--------|------------|
-| test_minimal_benchmark  |    1.6150 |    24.7750 |     2.0193 |    0.9212 |     1.7150 |    0.0995 | 803;2104  |     495.2227 |   9036 |          1 |
+| test_minimal_benchmark  |    2.8960 |    28.8740 |     3.0858 |    0.8426 |     2.9650 |    0.0390 | 347;707   |     324.0692 |  11731 |          1 |
 
 **Legend:**
 
